@@ -1,0 +1,51 @@
+
+####################################
+#        module installation       #
+####################################
+
+# add commons module
+
+module add --name=com.sample.pam.security.commons --resources=/opt/redhat/install/customAuthModule/commons/sample-security-commons-0.0.1-SNAPSHOT.jar
+
+# add custom login module
+module add --name=com.sample.pam.security.customlogin --resources=/opt/redhat/install/customAuthModule/loginmodule/sample-login-module-0.0.1-SNAPSHOT.jar,/opt/redhat/install/customAuthModule/loginmodule/accessors-smart-1.2.jar,/opt/redhat/install/customAuthModule/loginmodule/json-smart-2.3.jar,/opt/redhat/install/customAuthModule/loginmodule/nimbus-jose-jwt-8.19.jar --resource-delimiter=, --dependencies=com.sample.pam.security.commons,javax.api,javax.persistence.api,javax.resource.api,javax.security.auth.message.api,javax.security.jacc.api,javax.servlet.api,javax.transaction.api,javax.xml.bind.api,javax.xml.stream.api,org.jboss.logging,org.infinispan,org.wildfly.security.elytron,org.picketbox,asm.asm,net.jcip,com.fasterxml.jackson.core.jackson-core,com.fasterxml.jackson.core.jackson-databind
+
+# global module loading
+/subsystem=ee:list-add(name=global-modules,value={name=com.sample.pam.security.commons})
+
+# security domain configuration
+/subsystem=security/security-domain=other/authentication=classic:list-add(name=login-modules,index=2,value={code=com.sample.pam.security.customlogin.sampleLoginModule,flag=requisite,module=com.sample.pam.security.customlogin,module-options={password-stacking=useFirstPass,bearerTokenHeaderName=Authorization,idpConfigurationFolder=/opt/redhat/rh-pam-7.7_ps/standalone/configuration/idpConfigurations,jwtTokenHeaderName=x-jwt-assertion,enableJWTValidation=false,supportedSignatures=RSA256}})
+
+####################################
+# elytron subsystem configuration  #
+####################################
+# adding mapping between elytron and legacy security realm
+/subsystem=security/elytron-realm=sample-realm:add(legacy-jaas-config="other")
+
+# adding a role decoder
+/subsystem=elytron/simple-role-decoder=roles-decoder:add(attribute=Roles)
+
+# adding a new security domain for using the realm with undertow 
+/subsystem=elytron/security-domain=sampleDomain:add(default-realm=sample-realm,permission-mapper=default-permission-mapper,realms=[{realm=sample-realm,role-decoder=roles-decoder}])
+
+# adding a new http server mechanism factory
+/subsystem=elytron/service-loader-http-server-mechanism-factory=sample-bearer-factory:add(module=com.sample.pam.security.customlogin)
+
+# adding a new aggregated factory in order to have both sample and BASIC authentication methods
+/subsystem=elytron/aggregate-http-server-mechanism-factory=sample-bearer-aggregated:add(http-server-mechanism-factories=[sample-bearer-factory,global])
+
+# adding a new authentication factory for using the newli added mechanism
+/subsystem=elytron/http-authentication-factory=sample-bearer-http-auth:add(http-server-mechanism-factory=sample-bearer-aggregated,security-domain=sampleDomain,mechanism-configurations=[{mechanism-name=sample},{mechanism-name=BASIC}])
+
+####################################
+# undertow subsystem configuration #
+####################################
+# adding the application security domain
+/subsystem=undertow/application-security-domain=other:add(http-authentication-factory=sample-bearer-http-auth,override-deployment-config=true)
+#removing the default domain from undertow configuration
+/subsystem=undertow/server=default-server/host=default-host/setting=http-invoker:undefine-attribute(name=security-realm)
+
+# configuring the http-invoker to use the new factory
+/subsystem=undertow/server=default-server/host=default-host/setting=http-invoker:write-attribute(name=http-authentication-factory,value=sample-bearer-http-auth)
+
+

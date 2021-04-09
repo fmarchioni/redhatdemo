@@ -1,0 +1,11 @@
+####################################
+#        module installation       #
+####################################
+
+# add commons module
+
+module add --name=com.sample.pam.security.commons --resources=/opt/redhat/install/customAuthModule/commons/sample-security-commons-0.0.1-SNAPSHOT.jar
+
+# global module loading
+/subsystem=ee:list-add(name=global-modules,value={name=com.sample.pam.security.commons})
+
