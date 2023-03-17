@@ -1,0 +1,26 @@
+== Quarkus Camel extension demo
+
+This Demo demonstrates how to execute Drools Rules from within a Camel Route:
+
+----
+from("direct:start").setBody().simple("Hello World Camel fired at:").bean(new MyBean(),
+         "callDrools('rhel8',6,2048,4096)");
+----                
+
+To run the demo:
+
+----
+mvn install quarkus:dev
+----
+
+Then, invoke the /start endpoint which triggers the Camel direct component:
+
+----
+curl http://localhost:8080/start
+----
+
+=== Known limitations
+
+* No support for native execution (as of today)
+
+* You need to use a Bean or Processor to handle the execution of Drools Rules. Although there is a Quarkus extension (kogito-quarkus-rules) that natively supports Rules execution, it won't include KJAR packaging artifacts.
