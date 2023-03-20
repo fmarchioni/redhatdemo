@@ -9,7 +9,7 @@ This Demo demonstrates how to load a Drools Rule bundled in a KJAR File from wit
 
 To run the demo:
 
-1. Install the KJAR in the local Maven repository
+* Install the KJAR in the local Maven repository
 
 ----
 cd basic-kjar
@@ -17,7 +17,7 @@ cd basic-kjar
 mvn install
 ----
 
-2. Build and run the Quarkus application
+* Build and run the Quarkus application
 
 ----
 cd camel-demo
