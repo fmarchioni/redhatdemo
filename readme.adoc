@@ -22,7 +22,10 @@ mvn install
 ----
 cd camel-demo
 
-mvn install quarkus:dev
+mvn install 
+
+java -jar target/quarkus-app/quarkus-run.jar
+
 ----
 
 Then, invoke the /start endpoint which triggers the Camel direct component:
@@ -36,3 +39,12 @@ curl http://localhost:8080/start
 * No support for native execution (as of today)
 
 * You need to use a Bean or Processor to handle the execution of Drools Rules. Although there is a Quarkus extension (kogito-quarkus-rules) that natively supports Rules execution, it won't include KJAR packaging artifacts.
+
+* When executing the Quarkus application from Maven (f.e. mvn quarkus:dev) I have faced a conflict with the library org.eclipse.aether.aether-impl-1.1.0.jar
+that fails to connect to the Maven repository. At the moment you need to run the application with `java -jar target/quarkus-app/quarkus-run.jar`
+
+----
+Caused by: java.lang.NullPointerException
+	at org.eclipse.aether.internal.impl.DefaultRepositoryConnectorProvider.newRepositoryConnector(DefaultRepositoryConnectorProvider.java:97)
+	at org.eclipse.aether.internal.impl.DefaultArtifactResolver.performDownloads(DefaultArtifactResolver.java:512)
+----

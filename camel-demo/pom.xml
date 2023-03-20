@@ -49,11 +49,13 @@
       </dependencies>
    </dependencyManagement>
    <dependencies>
+ 
       <dependency>
          <groupId>com.sample</groupId>
          <artifactId>basic-kjar</artifactId>
          <version>1.0.0</version>
       </dependency>
+ 
       <dependency>
          <groupId>org.drools</groupId>
          <artifactId>drools-engine-classic</artifactId>
@@ -71,7 +73,7 @@
       </dependency>
       <dependency>
          <groupId>io.quarkus</groupId>
-         <artifactId>quarkus-resteasy-reactive</artifactId>
+         <artifactId>quarkus-resteasy</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.camel.quarkus</groupId>
