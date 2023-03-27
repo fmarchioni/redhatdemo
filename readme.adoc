@@ -22,7 +22,7 @@ mvn install
 ----
 cd camel-demo
 
-mvn install quarkus;dev
+mvn install quarkus:dev
 
 ----
 
